@@ -1,4 +1,4 @@
-streamlit
+gunicorn
 telebot
 Flask
 APScheduler
