@@ -1,10 +1,8 @@
 import telebot
-from flask import Flask, request
 from bs4 import BeautifulSoup
 import requests
 import random
-from apscheduler.schedulers.background import BackgroundScheduler
-import atexit
+import time
 
 # Замените 'YOUR_TOKEN' на реальный токен вашего бота
 bot = telebot.TeleBot('6958777588:AAG6Ly6WbOzDpCxNhaMx_MtItAgHi0KF-Dc')
@@ -15,11 +13,10 @@ channel_id = '-1002007866633'
 # Файл для хранения отправленных треков
 sent_tracks_file = 'sent_tracks.txt'
 
-# Flask приложение
-app = Flask(__name__)
-
-# Планировщик задач
-scheduler = BackgroundScheduler()
+# Заголовок User-Agent для имитации запроса от браузера
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
 
 def post_audio_to_channel():
     try:
@@ -29,7 +26,7 @@ def post_audio_to_channel():
 
         # Замените 'URL' на актуальную ссылку с busic.net
         url = 'https://busic.net/music/news'
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Получаем список всех треков
@@ -60,23 +57,11 @@ def post_audio_to_channel():
     except Exception as e:
         print(f"Произошла ошибка: {e}")
 
-# Регистрируем задачу для постинга трека каждый час
-scheduler.add_job(post_audio_to_channel, 'interval', minutes=1)
-
-# Завершаем работу планировщика при выходе
-atexit.register(lambda: scheduler.shutdown())
-
-# Вебхук для приема обновлений от Telegram
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    json_str = request.get_data().decode('UTF-8')
-    update = telebot.types.Update.de_json(json_str)
-    bot.process_new_updates([update])
-    return ''
-
 if __name__ == '__main__':
-    # Запускаем Flask веб-сервер
-    app.run(port=5000, debug=True)
+    # Постим первый трек сразу же после запуска
+    post_audio_to_channel()
 
-    # Запускаем планировщик задач
-    scheduler.start()
+    # Постим новый трек каждый час
+    while True:
+        post_audio_to_channel()
+        time.sleep(3600)  # Подождать 1 час перед следующим постом
