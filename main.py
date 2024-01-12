@@ -28,7 +28,7 @@ def post_audio_to_channel():
             sent_tracks = file.read().splitlines()
 
         # Замените 'URL' на актуальную ссылку с busic.net
-        url = 'https://busic.net/'
+        url = 'https://busic.net/music/news'
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
 
