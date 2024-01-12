@@ -1,4 +1,7 @@
 streamlit
 telebot
+Flask
+APScheduler
 beautifulsoup4
 requests
+python-telegram-bot
