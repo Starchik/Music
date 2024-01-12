@@ -53,7 +53,6 @@ def post_audio_to_channel():
         print(f"Произошла ошибка: {e}")
 
 if __name__ == '__main__':
-    post_audio_to_channel()
     # Постим новый трек каждый час
     while True:
         post_audio_to_channel()
